@@ -17,18 +17,21 @@ public final class FeedReaderContract {
         public static final String _ID = "_id";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_CONTENT = "content";
+        public static final String COLUMN_NAME_FREQUENCY = "frequency";
         public static final String COLUMN_NAME_NULLABLE = "NULL";
         // more columns
     }
 
     // helper definitions
     private static final String TEXT_TYPE = " TEXT";
+    private static final String INTEGER_TYPE = " INT";
     private static final String COMMA_SEP = ",";
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + FeedEntry.TABLE_NAME + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
                     FeedEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_CONTENT + TEXT_TYPE +
+                    FeedEntry.COLUMN_NAME_CONTENT + TEXT_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_NAME_FREQUENCY + INTEGER_TYPE +
                     " )";
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
@@ -37,8 +40,8 @@ public final class FeedReaderContract {
      *  This will look after
      */
     public static class FeedReaderDbHelper extends SQLiteOpenHelper {
-        public static final int DATABASE_VERSION = 1;  // increment the version if scheme changes
-        public static final String DATABASE_NAME = "FeedReader.db";
+        public static final int DATABASE_VERSION = 8;  // increment the version if scheme changes
+        public static final String DATABASE_NAME = "    FeedReader.db";
 
         public FeedReaderDbHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -57,6 +60,10 @@ public final class FeedReaderContract {
 
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgrade(db, oldVersion, newVersion);
+        }
+
+        public void deleteDatabase(SQLiteDatabase db) {
+            db.execSQL(SQL_DELETE_ENTRIES);
         }
     }
 

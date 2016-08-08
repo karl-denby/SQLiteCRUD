@@ -19,40 +19,48 @@ public class MainActivity extends AppCompatActivity {
 
         FeedReaderContract.FeedReaderDbHelper mDbHelper = new FeedReaderContract.FeedReaderDbHelper(this);
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        // deleteAll before we begin
-        deleteAll(db);
+        //mDbHelper.deleteDatabase(db);
 
         // Create
         ContentValues values = new ContentValues();
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, "Walk");
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CONTENT, "10 minutes");
-        createRow(values, db);
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_FREQUENCY, 1);
+        long itemId = createRow(values, db);
 
         values = new ContentValues();
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, "Internet");
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CONTENT, "20 minutes");
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_FREQUENCY, 1);
         long delRowId = createRow(values, db);
 
         values = new ContentValues();
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, "Program");
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CONTENT, "60 minutes");
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_FREQUENCY, 1);
         createRow(values, db);
 
         // Read
         String[] projection = {
                 FeedReaderContract.FeedEntry._ID,
                 FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE,
-                FeedReaderContract.FeedEntry.COLUMN_NAME_CONTENT
+                FeedReaderContract.FeedEntry.COLUMN_NAME_CONTENT,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_FREQUENCY
         };
-        long itemId = readRows(projection, db);
+        Cursor c = readRows(projection, db);
 
         // Update
+        int updatedRows;
         values = new ContentValues();
-        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, "TV");
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, "Walk");
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_CONTENT, "35 minutes");
-        int updatedRows = updateRow(itemId, values, db);
-        Log.v(TAG,"Update " + updatedRows);
+        updatedRows = updateRow(1, values, db);
+        Log.v(TAG,"Update String column, " + updatedRows + " rows of data");
+
+        values = new ContentValues();
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_FREQUENCY, 2);
+        updatedRows = updateRow(3, values, db);
+        Log.v(TAG,"Update Int column, " + updatedRows + " rows of data");
 
         // Delete
         deleteRow(delRowId, db);
@@ -71,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 values);
     }
 
-    private long readRows(String[] projection, SQLiteDatabase db) {
+    private Cursor readRows(String[] projection, SQLiteDatabase db) {
         String sortOrder =
                 FeedReaderContract.FeedEntry._ID + " ASC";
 
@@ -95,12 +103,13 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG, "Selected row with value: " +
                     c.getString(c.getColumnIndexOrThrow("_id")) + " " +
                     c.getString(c.getColumnIndexOrThrow("title")) + " " +
-                    c.getString(c.getColumnIndexOrThrow("content")));
+                    c.getString(c.getColumnIndexOrThrow("content")) + " " +
+                    c.getString(c.getColumnIndexOrThrow("frequency")));
                     c.moveToNext();
         }
 
         c.close();
-        return itemId;
+        return c;
     }
 
     private int updateRow(long itemId, ContentValues values, SQLiteDatabase db){
@@ -114,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
                 values,
                 selection,
                 selectionArgs);
-
     }
 
     private long deleteRow(long itemId, SQLiteDatabase db) {
@@ -124,14 +132,5 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, "Deleting row with id: " + itemId);
         return db.delete(FeedReaderContract.FeedEntry.TABLE_NAME, selection, selectionArgs);
     }
-
-    private long deleteAll(SQLiteDatabase db) {
-        //String selection = "";  // WHERE col_name NOT NULL
-        //String[] selectionArgs = new String[]{ String.valueOf(itemId) };
-
-        Log.v(TAG, "Deleting rows");
-        return db.delete(FeedReaderContract.FeedEntry.TABLE_NAME, null, null);
-    }
-
 }
 
