@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SQLlite CRUD</string>
+    <string name="sorry_no_gui_here_check_the_logs">Sorry No GUI here, check the logs!!</string>
+</resources>
